@@ -1,4 +1,4 @@
-package bootwildfly;
+package hello;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,7 +9,7 @@ public class HelloWildFlyController {
 
     @RequestMapping("/hello")
     public String sayHello(){
-        return ("Hello, SpringBoot on Wildfly - I WAS CHANGED!, again");
+        return ("Greetings from Spring Boot!");
     }
 
 }

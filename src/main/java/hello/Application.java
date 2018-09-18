@@ -1,4 +1,4 @@
-package bootwildfly;
+package hello;
 
 import org.springframework.boot.SpringApplication;
 import java.util.Arrays;
