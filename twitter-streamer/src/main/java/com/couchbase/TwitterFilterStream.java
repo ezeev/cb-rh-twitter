@@ -10,9 +10,9 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import com.twitter.hbc.ClientBuilder;
 
@@ -24,7 +24,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class TwitterFilterStream implements DisposableBean, Runnable {
 
-    //private Thread thread;
+    private Thread thread;
+
+    public TwitterFilterStream() {
+
+    }
+
+    @PostConstruct
+    public void startThread() {
+        this.thread = new Thread(this);
+        this.thread.start();
+    }
+
+
+    @Autowired
+    private CouchbaseSink sink;
 
     private static final Logger log = LoggerFactory.getLogger(TwitterFilterStream.class);
 
@@ -43,12 +57,8 @@ public class TwitterFilterStream implements DisposableBean, Runnable {
     @Value("#{environment['TWITTER_FILTER']}")
     private String filterString;
 
-    public TwitterFilterStream() {
-    }
-
 
     @Override
-    @PostConstruct
     public void run() {
 
         log.info("Starting twitter stream using filters: " + filterString);
@@ -62,29 +72,34 @@ public class TwitterFilterStream implements DisposableBean, Runnable {
 
         Authentication auth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
-        Client client = new ClientBuilder()
-                .hosts(Constants.STREAM_HOST)
-                .endpoint(endpoint)
-                .authentication(auth)
-                .processor(new StringDelimitedProcessor(queue))
-                .build();
 
-        client.connect();
+        while(true) {
 
-        for (int msgRead = 0; msgRead < 1000; msgRead++) {
-            try {
-                String msg = queue.take();
-                //System.out.println(msg);
-            } catch (InterruptedException e) {
-                log.error(e.getMessage());
-                e.printStackTrace();
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                e.printStackTrace();
+            Client client = new ClientBuilder()
+                    .hosts(Constants.STREAM_HOST)
+                    .endpoint(endpoint)
+                    .authentication(auth)
+                    .processor(new StringDelimitedProcessor(queue))
+                    .build();
+
+            client.connect();
+
+
+            for (int msgRead = 0; msgRead < 1000; msgRead++) {
+                try {
+                    String msg = queue.take();
+                    sink.addTweet(msg);
+                    TweetStreamStatsCollector.incrementTweetsProcessed();
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    e.printStackTrace();
+                }
             }
+            client.stop();
         }
-
-        client.stop();
 
     }
 

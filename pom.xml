@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>twitter-stream</module>
+        <module>twitter-streamer</module>
     </modules>
 
 </project>
