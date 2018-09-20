@@ -65,6 +65,7 @@ public class CouchbaseSink implements TweetSink {
     public void addTweet(String msg) {
 
         if (couchbaseAddress == null) {
+            log.info(msg);
             return;
         }
 
