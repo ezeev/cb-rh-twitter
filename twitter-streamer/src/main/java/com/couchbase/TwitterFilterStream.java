@@ -81,9 +81,6 @@ public class TwitterFilterStream implements DisposableBean, Runnable {
                     .authentication(auth)
                     .processor(new StringDelimitedProcessor(queue))
                     .build();
-
-            log.info("Conneting w/: " + consumerKey + ", " + consumerSecret + ", " + token + ", " + secret);
-
             client.connect();
 
 
