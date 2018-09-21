@@ -72,7 +72,6 @@ public class TwitterFilterStream implements DisposableBean, Runnable {
 
         Authentication auth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
-
         while(true) {
 
             Client client = new ClientBuilder()
