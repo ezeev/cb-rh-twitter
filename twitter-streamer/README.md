@@ -16,7 +16,11 @@ oc new-app registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:late
        -e TWITTER_TOKEN=YOUR_TOKEN \
        -e TWITTER_SECRET=YOUR_SECRET \
        -e TWITTER_FILTER='filter1,filter2' \
-       --context-dir=twitter-streamer
+       -e COUCHBASE_CLUSTER=cb-example \
+       -e COUCHBASE_USER=Administrator \
+       -e COUCHBASE_PASSWORD=password \
+       -e COUCHBASE_TWEET_BUCKET=tweets \       
+       --context-dir=twitter-streamer \
 ```
 
 ### Minishift Bug Workarounds
